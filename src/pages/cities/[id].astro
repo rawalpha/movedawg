@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlaceCard from '../../components/PlaceCard.astro';
+import HotelCard from '../../components/HotelCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const cities = await getCollection('cities');
+  const places = await getCollection('places');
+  const hotels = await getCollection('hotels');
+  const countries = await getCollection('countries');
+
+  return cities.map((city) => ({
+    params: { id: city.slug },
+    props: {
+      city,
+      country: countries.find((c) => c.slug === city.data.country),
+      places: places.filter((p) => p.data.city === city.slug),
+      hotels: hotels.filter((h) => h.data.city === city.slug),
+    },
+  }));
+}
+
+const { city, country, places, hotels } = Astro.props;
+const { Content } = await city.render();
+---
+
+<BaseLayout title={city.data.title} description={city.data.description}>
+  <main class="mx-auto max-w-5xl px-4 pb-24 pt-16 sm:px-6 lg:px-8">
+    <nav class="text-xs text-neutral-500">
+      <a href="/" class="hover:text-neutral-300">Главная</a>
+      {country && (
+        <>
+          {' / '}
+          <a href={`/countries/${country.slug}`} class="hover:text-neutral-300">{country.data.title}</a>
+        </>
+      )}
+      {' / '}
+      <span class="text-neutral-300">{city.data.title}</span>
+    </nav>
+
+    <h1 class="mt-4 text-3xl font-medium text-neutral-50">{city.data.title}</h1>
+    <p class="mt-3 text-sm leading-relaxed text-neutral-400">{city.data.description}</p>
+
+    <div class="prose prose-invert prose-sm mt-8 max-w-none prose-headings:font-medium prose-headings:text-neutral-100 prose-p:text-neutral-400">
+      <Content />
+    </div>
+
+    {places.length > 0 && (
+      <section class="mt-12 border-t border-neutral-900 pt-10">
+        <h2 class="mb-5 text-lg font-medium text-neutral-100">Места</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {places.map((place) => (
+            <PlaceCard
+              id={place.slug}
+              title={place.data.title}
+              description={place.data.description}
+              category={place.data.category}
+              rating={place.data.rating}
+              priceLevel={place.data.priceLevel}
+              tier={place.data.tier}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+    {hotels.length > 0 && (
+      <section class="mt-12 border-t border-neutral-900 pt-10">
+        <h2 class="mb-5 text-lg font-medium text-neutral-100">Отели</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {hotels.map((hotel) => (
+            <HotelCard
+              id={hotel.slug}
+              title={hotel.data.title}
+              stars={hotel.data.stars}
+              priceRange={hotel.data.priceRange}
+              rating={hotel.data.rating}
+              tier={hotel.data.tier}
+              affiliateUrl={hotel.data.affiliateUrl}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+  </main>
+</BaseLayout>
