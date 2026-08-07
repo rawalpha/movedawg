@@ -1,0 +1,80 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { title, description, ogImage = '/og-default.png', structuredData } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalURL} />
+
+    <title>{title} · Movedawg</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={`${title} · Movedawg`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site)} />
+    <meta property="og:site_name" content="Movedawg" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={`${title} · Movedawg`} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(ogImage, Astro.site)} />
+
+    <meta name="generator" content={Astro.generator} />
+
+    {structuredData && (
+      <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    )}
+  </head>
+  <body class="bg-black text-neutral-200 antialiased selection:bg-amber-400 selection:text-black">
+    <div class="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(to_right,#0a0a0a_1px,transparent_1px),linear-gradient(to_bottom,#0a0a0a_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_0%,#000_20%,transparent_100%)]">
+    </div>
+
+    <header class="relative z-20 mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
+      <a href="/" class="flex items-center gap-2">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="20" r="6.5" fill="#F5A623" />
+          <circle cx="9" cy="11" r="3" fill="#F5A623" />
+          <circle cx="16" cy="8" r="3" fill="#F5A623" />
+          <circle cx="23" cy="11" r="3" fill="#F5A623" />
+        </svg>
+        <span class="text-sm font-medium tracking-tight text-neutral-100">movedawg</span>
+      </a>
+      <nav class="flex items-center gap-4 text-xs text-neutral-400">
+        <a href="/countries" class="hover:text-neutral-100">Страны</a>
+        <a href="/articles" class="hover:text-neutral-100">Статьи</a>
+        <a href="/tools" class="hover:text-neutral-100">Тулзы</a>
+      </nav>
+    </header>
+
+    <div class="relative z-10">
+      <slot />
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  html {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    scroll-behavior: smooth;
+  }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #000; }
+  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 999px; }
+</style>
