@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const tools = (await getCollection('tools')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
@@ -33,4 +33,3 @@ const categoryLabels: Record<string, string> = {
     </div>
   </main>
 </BaseLayout>
-
