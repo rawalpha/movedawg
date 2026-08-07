@@ -1,0 +1,32 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  summary: string;
+  tags: string[];
+  coverImage?: string;
+}
+
+const { id, title, summary, tags, coverImage } = Astro.props;
+---
+
+<a href={`/articles/${id}`} class="group block overflow-hidden rounded-2xl border border-neutral-800 bg-[#0A0A0A] transition-colors duration-300 hover:border-neutral-600">
+  {coverImage && (
+    <div class="aspect-[16/9] w-full overflow-hidden bg-neutral-900">
+      <img src={coverImage} alt={title} class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+    </div>
+  )}
+  <div class="p-5">
+    {tags.length > 0 && (
+      <div class="mb-2 flex gap-1.5">
+        {tags.slice(0, 2).map((tag) => (
+          <span class="rounded-full border border-neutral-800 px-2 py-0.5 text-[10px] uppercase tracking-wide text-neutral-500">
+            {tag}
+          </span>
+        ))}
+      </div>
+    )}
+    <h3 class="text-sm font-medium text-neutral-100">{title}</h3>
+    <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-neutral-400">{summary}</p>
+  </div>
+</a>
