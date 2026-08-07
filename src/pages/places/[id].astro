@@ -1,0 +1,114 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TierBadge from '../../components/TierBadge.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const places = await getCollection('places');
+  const cities = await getCollection('cities');
+  const countries = await getCollection('countries');
+
+  return places.map((place) => {
+    const city = cities.find((c) => c.slug === place.data.city);
+    const country = city ? countries.find((c) => c.slug === city.data.country) : undefined;
+    return {
+      params: { id: place.slug },
+      props: { place, city, country },
+    };
+  });
+}
+
+const { place, city, country } = Astro.props;
+const { Content } = await place.render();
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': place.data.category === 'restaurant' || place.data.category === 'bar' || place.data.category === 'cafe'
+    ? 'Restaurant'
+    : 'TouristAttraction',
+  name: place.data.title,
+  description: place.data.description,
+  address: place.data.address,
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: place.data.rating,
+    bestRating: '5',
+    worstRating: '1',
+    ratingCount: 1,
+  },
+};
+---
+
+<BaseLayout title={place.data.title} description={place.data.description} structuredData={structuredData}>
+  <main class="mx-auto max-w-3xl px-4 pb-32 pt-16 sm:px-6 lg:px-8">
+    <nav class="text-xs text-neutral-500">
+      <a href="/" class="hover:text-neutral-300">Главная</a>
+      {country && <> {' / '}<a href={`/countries/${country.slug}`} class="hover:text-neutral-300">{country.data.title}</a></>}
+      {city && <> {' / '}<a href={`/cities/${city.slug}`} class="hover:text-neutral-300">{city.data.title}</a></>}
+      {' / '}<span class="text-neutral-300">{place.data.title}</span>
+    </nav>
+
+    <header class="mt-6 flex items-start justify-between gap-4 border-b border-neutral-900 pb-6">
+      <div>
+        <h1 class="text-2xl font-medium text-neutral-50">{place.data.title}</h1>
+        <div class="mt-2 flex items-center gap-2 text-xs text-neutral-500">
+          <span class="flex items-center gap-1 text-neutral-300">
+            <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1.99 5.79L10 14.9l-5.2 2.61.99-5.79-4.21-4.1 5.82-.85L10 1.5z" />
+            </svg>
+            {place.data.rating.toFixed(1)}
+          </span>
+          {place.data.priceLevel && <span>{place.data.priceLevel}</span>}
+          <TierBadge tier={place.data.tier} />
+        </div>
+      </div>
+    </header>
+
+    <p class="mt-6 text-sm leading-relaxed text-neutral-400">{place.data.description}</p>
+    {place.data.address && <p class="mt-2 text-xs text-neutral-500">📍 {place.data.address}</p>}
+
+    <div class="prose prose-invert prose-sm mt-8 max-w-none prose-headings:font-medium prose-headings:text-neutral-100 prose-p:text-neutral-400">
+      <Content />
+    </div>
+
+    {(place.data.pros.length > 0 || place.data.cons.length > 0) && (
+      <div class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="rounded-2xl border border-neutral-800 bg-[#0A0A0A] p-5">
+          <h3 class="mb-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Плюсы</h3>
+          <ul class="space-y-2">
+            {place.data.pros.map((pro) => (
+              <li class="flex gap-2 text-sm text-neutral-300"><span class="mt-0.5 text-neutral-600">＋</span>{pro}</li>
+            ))}
+          </ul>
+        </div>
+        <div class="rounded-2xl border border-neutral-800 bg-[#0A0A0A] p-5">
+          <h3 class="mb-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Минусы</h3>
+          <ul class="space-y-2">
+            {place.data.cons.map((con) => (
+              <li class="flex gap-2 text-sm text-neutral-300"><span class="mt-0.5 text-neutral-600">－</span>{con}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )}
+  </main>
+
+  {place.data.affiliateUrl && (
+    <div class="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-800 bg-black/90 backdrop-blur">
+      <div class="mx-auto flex max-w-3xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        <div class="text-sm text-neutral-400">
+          <span class="text-neutral-100">{place.data.title}</span>
+        </div>
+        <a
+          href={place.data.affiliateUrl}
+          target="_blank"
+          rel="nofollow sponsored noopener noreferrer"
+          class="rounded-full bg-white px-4 py-2 text-xs font-medium text-black transition-opacity hover:opacity-85"
+        >
+          Забронировать →
+        </a>
+      </div>
+    </div>
+  )}
+</BaseLayout>
+
