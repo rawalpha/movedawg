@@ -1,0 +1,101 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TierBadge from '../../components/TierBadge.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const hotels = await getCollection('hotels');
+  const cities = await getCollection('cities');
+  const countries = await getCollection('countries');
+
+  return hotels.map((hotel) => {
+    const city = cities.find((c) => c.slug === hotel.data.city);
+    const country = city ? countries.find((c) => c.slug === city.data.country) : undefined;
+    return {
+      params: { id: hotel.slug },
+      props: { hotel, city, country },
+    };
+  });
+}
+
+const { hotel, city, country } = Astro.props;
+const { Content } = await hotel.render();
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Hotel',
+  name: hotel.data.title,
+  starRating: hotel.data.stars ? { '@type': 'Rating', ratingValue: hotel.data.stars } : undefined,
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: hotel.data.rating,
+    bestRating: '5',
+    worstRating: '1',
+    ratingCount: 1,
+  },
+};
+---
+
+<BaseLayout title={hotel.data.title} description={`Отель ${hotel.data.title}`} structuredData={structuredData}>
+  <main class="mx-auto max-w-3xl px-4 pb-32 pt-16 sm:px-6 lg:px-8">
+    <nav class="text-xs text-neutral-500">
+      <a href="/" class="hover:text-neutral-300">Главная</a>
+      {country && <> {' / '}<a href={`/countries/${country.slug}`} class="hover:text-neutral-300">{country.data.title}</a></>}
+      {city && <> {' / '}<a href={`/cities/${city.slug}`} class="hover:text-neutral-300">{city.data.title}</a></>}
+      {' / '}<span class="text-neutral-300">{hotel.data.title}</span>
+    </nav>
+
+    <header class="mt-6 border-b border-neutral-900 pb-6">
+      <h1 class="text-2xl font-medium text-neutral-50">{hotel.data.title}</h1>
+      <div class="mt-2 flex items-center gap-2 text-xs text-neutral-500">
+        {hotel.data.stars && <span class="text-neutral-300">{'★'.repeat(hotel.data.stars)}</span>}
+        <span class="flex items-center gap-1 text-neutral-300">
+          <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1.99 5.79L10 14.9l-5.2 2.61.99-5.79-4.21-4.1 5.82-.85L10 1.5z" />
+          </svg>
+          {hotel.data.rating.toFixed(1)}
+        </span>
+        <TierBadge tier={hotel.data.tier} />
+      </div>
+    </header>
+
+    <div class="prose prose-invert prose-sm mt-8 max-w-none prose-headings:font-medium prose-headings:text-neutral-100 prose-p:text-neutral-400">
+      <Content />
+    </div>
+
+    {(hotel.data.pros.length > 0 || hotel.data.cons.length > 0) && (
+      <div class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="rounded-2xl border border-neutral-800 bg-[#0A0A0A] p-5">
+          <h3 class="mb-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Плюсы</h3>
+          <ul class="space-y-2">
+            {hotel.data.pros.map((pro) => (
+              <li class="flex gap-2 text-sm text-neutral-300"><span class="mt-0.5 text-neutral-600">＋</span>{pro}</li>
+            ))}
+          </ul>
+        </div>
+        <div class="rounded-2xl border border-neutral-800 bg-[#0A0A0A] p-5">
+          <h3 class="mb-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Минусы</h3>
+          <ul class="space-y-2">
+            {hotel.data.cons.map((con) => (
+              <li class="flex gap-2 text-sm text-neutral-300"><span class="mt-0.5 text-neutral-600">－</span>{con}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )}
+  </main>
+
+  <div class="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-800 bg-black/90 backdrop-blur">
+    <div class="mx-auto flex max-w-3xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <div class="text-sm text-neutral-400"><span class="text-neutral-100">{hotel.data.title}</span></div>
+      <a
+        href={hotel.data.affiliateUrl}
+        target="_blank"
+        rel="nofollow sponsored noopener noreferrer"
+        class="rounded-full bg-white px-4 py-2 text-xs font-medium text-black transition-opacity hover:opacity-85"
+      >
+        Забронировать →
+      </a>
+    </div>
+  </div>
+</BaseLayout>
