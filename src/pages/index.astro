@@ -1,0 +1,115 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import PlaceCard from '../components/PlaceCard.astro';
+import HotelCard from '../components/HotelCard.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = (await getCollection('articles'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const featuredPlaces = (await getCollection('places'))
+  .filter((p) => p.data.featured)
+  .slice(0, 6);
+
+const featuredHotels = (await getCollection('hotels'))
+  .filter((h) => h.data.featured)
+  .slice(0, 3);
+
+const countries = (await getCollection('countries'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout
+  title="Movedawg — гид по странам, городам и местам"
+  description="Структурированный каталог направлений: страны, города, места и отели с честными обзорами, плюс подборки и полезные тревел-сервисы."
+>
+  <main class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <!-- HERO -->
+    <section class="flex flex-col items-center pt-16 pb-12 text-center sm:pt-20">
+      <h1 class="max-w-2xl text-4xl font-medium leading-tight tracking-tight text-neutral-50 sm:text-5xl">
+        Куда поехать
+        <span class="text-accent">и что там делать</span>
+      </h1>
+      <p class="mt-5 max-w-lg text-sm text-neutral-500 sm:text-base">
+        Страны, города, места и отели — без воды, с честными плюсами и минусами.
+      </p>
+    </section>
+
+    <!-- ARTICLES FEED (приманка) -->
+    {allArticles.length > 0 && (
+      <section class="pb-20">
+        <h2 class="mb-5 text-lg font-medium text-neutral-100">Свежие подборки</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {allArticles.map((article) => (
+            <ArticleCard
+              id={article.slug}
+              title={article.data.title}
+              summary={article.data.summary}
+              tags={article.data.tags}
+              coverImage={article.data.coverImage}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- COUNTRIES -->
+    {countries.length > 0 && (
+      <section class="border-t border-neutral-900 py-16">
+        <h2 class="mb-5 text-lg font-medium text-neutral-100">Страны</h2>
+        <div class="flex flex-wrap gap-2">
+          {countries.map((country) => (
+            <a
+              href={`/countries/${country.slug}`}
+              class="rounded-full border border-neutral-800 bg-[#0A0A0A] px-4 py-2 text-sm text-neutral-300 transition-colors hover:border-neutral-600 hover:text-neutral-100"
+            >
+              {country.data.title}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- FEATURED PLACES -->
+    {featuredPlaces.length > 0 && (
+      <section class="border-t border-neutral-900 py-16">
+        <h2 class="mb-5 text-lg font-medium text-neutral-100">Рекомендованные места</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {featuredPlaces.map((place) => (
+            <PlaceCard
+              id={place.slug}
+              title={place.data.title}
+              description={place.data.description}
+              category={place.data.category}
+              rating={place.data.rating}
+              priceLevel={place.data.priceLevel}
+              tier={place.data.tier}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- FEATURED HOTELS -->
+    {featuredHotels.length > 0 && (
+      <section class="border-t border-neutral-900 py-16 pb-24">
+        <h2 class="mb-5 text-lg font-medium text-neutral-100">Отели</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {featuredHotels.map((hotel) => (
+            <HotelCard
+              id={hotel.slug}
+              title={hotel.data.title}
+              stars={hotel.data.stars}
+              priceRange={hotel.data.priceRange}
+              rating={hotel.data.rating}
+              tier={hotel.data.tier}
+              affiliateUrl={hotel.data.affiliateUrl}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+  </main>
+</BaseLayout>
+
