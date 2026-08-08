@@ -10,7 +10,7 @@ const countries = (await getCollection('countries')).sort((a, b) => a.data.title
     <h1 class="text-3xl font-medium text-neutral-50">Страны</h1>
     <div class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
       {countries.map((country) => (
-        <a href={`/countries/${country.slug}`} class="rounded-2xl border border-neutral-800 bg-[#0A0A0A] p-4 transition-colors hover:border-neutral-600">
+        <a href={`/countries/${country.slug}`} class="rounded-2xl border border-neutral-800 bg-[#1B1B1F] p-4 transition-colors hover:border-neutral-600">
           <h2 class="text-sm font-medium text-neutral-100">{country.data.title}</h2>
           <p class="mt-1 line-clamp-2 text-xs text-neutral-500">{country.data.description}</p>
         </a>
@@ -18,3 +18,4 @@ const countries = (await getCollection('countries')).sort((a, b) => a.data.title
     </div>
   </main>
 </BaseLayout>
+
