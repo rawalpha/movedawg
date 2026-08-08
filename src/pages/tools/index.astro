@@ -20,7 +20,7 @@ const categoryLabels: Record<string, string> = {
     <h1 class="text-3xl font-medium text-neutral-50">Полезные сервисы</h1>
     <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
       {tools.map((tool) => (
-        <a href={tool.data.affiliateUrl} target="_blank" rel="nofollow sponsored noopener noreferrer" class="rounded-2xl border border-neutral-800 bg-[#0A0A0A] p-4 transition-colors hover:border-neutral-600">
+        <a href={tool.data.affiliateUrl} target="_blank" rel="nofollow sponsored noopener noreferrer" class="rounded-2xl border border-neutral-800 bg-[#1B1B1F] p-4 transition-colors hover:border-neutral-600">
           <div class="flex items-center justify-between">
             <h2 class="text-sm font-medium text-neutral-100">{tool.data.title}</h2>
             <span class="rounded-full border border-neutral-800 px-2 py-0.5 text-[11px] text-neutral-500">
@@ -33,3 +33,4 @@ const categoryLabels: Record<string, string> = {
     </div>
   </main>
 </BaseLayout>
+
