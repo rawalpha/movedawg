@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        black: '#000000',
+        black: '#121214',
         accent: {
           DEFAULT: '#F5A623',
           light: '#FCD34D',
@@ -18,3 +18,4 @@ export default {
   },
   plugins: [require('@tailwindcss/typography')],
 };
+
